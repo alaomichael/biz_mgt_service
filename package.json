@@ -1,0 +1,48 @@
+{
+  "name": "biz_mgt_service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node ace serve --watch",
+    "build": "node ace build --production",
+    "start:prod": "node ./build/server.js",
+    "start": "pm2-runtime start ecosystem.config.js --env production",
+    "start_former": "node server.js",
+    "lint": "eslint . --ext=.ts",
+    "format": "prettier --write .",
+    "test": "node ace test --watch",
+    "deploy": "git add . && git commit -m Heroku && git push heroku main",
+    "restart": "heroku restart -a astrapay-v2-biz-mgt",
+    "heroku-postbuild": "npm install pm2"
+  },
+  "devDependencies": {
+    "@adonisjs/assembler": "^5.7.0",
+    "@japa/preset-adonis": "^1.0.16",
+    "@japa/runner": "^2.0.8",
+    "adonis-preset-ts": "^2.1.0",
+    "pino-pretty": "^7.6.1",
+    "typescript": "~4.6",
+    "youch": "^3.2.0",
+    "youch-terminal": "^2.1.4"
+  },
+  "dependencies": {
+    "@adonisjs/ace": "^11.3.1",
+    "@adonisjs/core": "^5.8.3",
+    "@adonisjs/lucid": "^18.0.0",
+    "@adonisjs/repl": "^3.1.11",
+    "axios": "^0.27.2",
+    "knex": "^2.1.0",
+    "luxon": "^2.4.0",
+    "node-cron": "^3.0.0",
+    "pg": "^8.7.3",
+    "phc-argon2": "^1.1.3",
+    "pm2": "^5.2.0",
+    "proxy-addr": "^2.0.7",
+    "puppeteer": "^14.2.0",
+    "reflect-metadata": "^0.1.13",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.8.0",
+    "url-parse": "^1.5.10",
+    "uuid": "^8.3.2"
+  }
+}
