@@ -7,13 +7,8 @@ import Event from "@ioc:Adonis/Core/Event";
 export default class SettingsController {
   public async index({ params, request, response }: HttpContextContract) {
     console.log("setting params: ", params);
-    const {
-     isOnboardingAutomated,
-isTerminationAutomated,
-      tagName,
-
-      limit,
-    } = request.qs();
+    const { isOnboardingAutomated, isTerminationAutomated, tagName, limit } =
+      request.qs();
     console.log("setting query: ", request.qs());
     // const countActiveSetting = await Setting.query()
     //   .where("investment_type", "fixed")
@@ -27,7 +22,9 @@ isTerminationAutomated,
     if (isOnboardingAutomated) {
       sortedSettings = sortedSettings.filter((setting) => {
         // @ts-ignore
-        return setting.isOnboardingAutomated.toString() === isOnboardingAutomated;
+        return (
+          setting.isOnboardingAutomated.toString() === isOnboardingAutomated
+        );
       });
     }
 
@@ -83,11 +80,31 @@ isTerminationAutomated,
     // Send setting Creation Message to Queue
 
     Event.emit("new:setting", {
-        id: setting.id,
-        // @ts-ignore
+      id: setting.id,
+      // @ts-ignore
       extras: setting.additionalDetails,
     });
     return response.json({ status: "OK", data: setting.$original });
+  }
+
+  public async showSettingById({ params, response }: HttpContextContract) {
+    console.log("setting params: ", params);
+    let {id} = params
+   // const setting = await Setting.query().offset(0).limit(1)
+    const setting = await Setting.query().where({id:id}).first();
+
+    if (setting === null) {
+      return response.status(200).json({
+        status: "OK",
+        message: "no general setting matched your search",
+        data: [],
+      });
+    }
+    // return setting(s)
+    return response.status(200).json({
+      status: "OK",
+      data: setting.$original,
+    });
   }
 
   public async update({ request, response }: HttpContextContract) {
@@ -102,10 +119,14 @@ isTerminationAutomated,
       if (setting.length > 0) {
         console.log("Investment setting Selected for Update:", setting);
         if (setting) {
-          setting[0].isOnboardingAutomated = request.input("isOnboardingAutomated")
+          setting[0].isOnboardingAutomated = request.input(
+            "isOnboardingAutomated"
+          )
             ? request.input("isOnboardingAutomated")
             : setting[0].isOnboardingAutomated;
-          setting[0].isTerminationAutomated = request.input("isTerminationAutomated")
+          setting[0].isTerminationAutomated = request.input(
+            "isTerminationAutomated"
+          )
             ? request.input("isTerminationAutomated")
             : setting[0].isTerminationAutomated;
           setting[0].tagName = request.input("tagName")
@@ -123,12 +144,10 @@ isTerminationAutomated,
           return response.status(304).json({ status: "FAILED", data: setting });
         }
       } else {
-        return response
-          .status(404)
-          .json({
-            status: "FAILED",
-            message: "No data match your query parameters",
-          });
+        return response.status(404).json({
+          status: "FAILED",
+          message: "No data match your query parameters",
+        });
       }
     } catch (error) {
       console.error(error);
@@ -152,7 +171,7 @@ isTerminationAutomated,
         })
         .delete();
       console.log("Deleted data:", setting);
-      return response.send("setting Delete.");
+      return response.send("Setting Deleted.");
     } else {
       return response
         .status(404)

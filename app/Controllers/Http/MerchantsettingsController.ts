@@ -22,13 +22,6 @@ export default class MerchantsettingsController {
       limit,
     } = request.qs();
     console.log("merchantsetting query: ", request.qs());
-    const countActiveSetting = await Merchantsetting.query().where(
-      "investment_type",
-      "fixed"
-    );
-    //   .getCount();
-    console.log("merchantsetting Investment count: ", countActiveSetting);
-
     // const merchantsetting = await Merchantsetting.query().offset(0).limit(1)
     const merchantsetting = await Merchantsetting.all();
     let sortedSettings = merchantsetting;
@@ -84,7 +77,8 @@ export default class MerchantsettingsController {
       sortedSettings = sortedSettings.filter((merchantsetting) => {
         // @ts-ignore
         return (
-          merchantsetting.isTelleringAutomated.toString() === isTelleringAutomated
+          merchantsetting.isTelleringAutomated.toString() ===
+          isTelleringAutomated
         );
       });
     }
@@ -138,6 +132,26 @@ export default class MerchantsettingsController {
     });
   }
 
+  public async showSettingById({ params, response }: HttpContextContract) {
+    console.log("setting params: ", params);
+    let { id } = params;
+    // const setting = await Setting.query().offset(0).limit(1)
+    const setting = await Merchantsetting.query().where({ id: id }).first();
+ console.log("setting query result: ", setting);
+    if (setting === null) {
+      return response.status(200).json({
+        status: "OK",
+        message: "no merchant setting matched your search",
+        data: [],
+      });
+    }
+    // return setting(s)
+    return response.status(200).json({
+      status: "OK",
+      data: setting.$original,
+    });
+  }
+
   public async store({ request, response }: HttpContextContract) {
     // const user = await auth.authenticate()
     const settingSchema = schema.create({
@@ -180,66 +194,66 @@ export default class MerchantsettingsController {
 
       let merchantsetting = await Merchantsetting.query().where({
         id: id,
-      });
+      }).first();
       console.log(" QUERY RESULT: ", merchantsetting);
-      if (merchantsetting.length > 0) {
+      if (merchantsetting !== null) {
         console.log(
           "Investment merchantsetting Selected for Update:",
           merchantsetting
         );
         if (merchantsetting) {
-          merchantsetting[0].isOnboardingAutomated = request.input(
+          merchantsetting.isOnboardingAutomated = request.input(
             "isOnboardingAutomated"
           )
             ? request.input("isOnboardingAutomated")
-            : merchantsetting[0].isOnboardingAutomated;
-          merchantsetting[0].isTerminationAutomated = request.input(
+            : merchantsetting.isOnboardingAutomated;
+          merchantsetting.isTerminationAutomated = request.input(
             "isTerminationAutomated"
           )
             ? request.input("isTerminationAutomated")
-            : merchantsetting[0].isTerminationAutomated;
-          merchantsetting[0].isDailyContributionAutomated = request.input(
+            : merchantsetting.isTerminationAutomated;
+          merchantsetting.isDailyContributionAutomated = request.input(
             "isDailyContributionAutomated"
           )
             ? request.input("isDailyContributionAutomated")
-            : merchantsetting[0].isDailyContributionAutomated;
-          merchantsetting[0].isDepositAutomated = request.input(
+            : merchantsetting.isDailyContributionAutomated;
+          merchantsetting.isDepositAutomated = request.input(
             "isDepositAutomated"
           )
             ? request.input("isDepositAutomated")
-            : merchantsetting[0].isDepositAutomated;
-          merchantsetting[0].isWithdrawalAutomated = request.input(
+            : merchantsetting.isDepositAutomated;
+          merchantsetting.isWithdrawalAutomated = request.input(
             "isWithdrawalAutomated"
           )
             ? request.input("isWithdrawalAutomated")
-            : merchantsetting[0].isWithdrawalAutomated;
-          merchantsetting[0].isTelleringAutomated = request.input(
+            : merchantsetting.isWithdrawalAutomated;
+          merchantsetting.isTelleringAutomated = request.input(
             "isTelleringAutomated"
           )
             ? request.input("isTelleringAutomated")
-            : merchantsetting[0].isTelleringAutomated;
-          merchantsetting[0].isTransferAutomated = request.input(
+            : merchantsetting.isTelleringAutomated;
+          merchantsetting.isTransferAutomated = request.input(
             "isTransferAutomated"
           )
             ? request.input("isTransferAutomated")
-            : merchantsetting[0].isTransferAutomated;
-          merchantsetting[0].isBillPaymentAutomated = request.input(
+            : merchantsetting.isTransferAutomated;
+          merchantsetting.isBillPaymentAutomated = request.input(
             "isBillPaymentAutomated"
           )
             ? request.input("isBillPaymentAutomated")
-            : merchantsetting[0].isBillPaymentAutomated;
-          merchantsetting[0].isVoucherAutomated = request.input(
+            : merchantsetting.isBillPaymentAutomated;
+          merchantsetting.isVoucherAutomated = request.input(
             "isVoucherAutomated"
           )
             ? request.input("isVoucherAutomated")
-            : merchantsetting[0].isVoucherAutomated;
-          merchantsetting[0].tagName = request.input("tagName")
+            : merchantsetting.isVoucherAutomated;
+          merchantsetting.tagName = request.input("tagName")
             ? request.input("tagName")
-            : merchantsetting[0].tagName;
+            : merchantsetting.tagName;
 
           if (merchantsetting) {
             // send to user
-            await merchantsetting[0].save();
+            await merchantsetting.save();
             console.log("Update Investment merchantsetting:", merchantsetting);
             return merchantsetting;
           }
@@ -277,7 +291,7 @@ export default class MerchantsettingsController {
         })
         .delete();
       console.log("Deleted data:", merchantsetting);
-      return response.send("merchantsetting Delete.");
+      return response.send("Merchant setting Deleted.");
     } else {
       return response
         .status(404)

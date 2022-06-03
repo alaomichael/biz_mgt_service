@@ -17,18 +17,10 @@ export default class TenantsettingsController {
       isBillPaymentAutomated,
       isVoucherAutomated,
       tagName,
-
       limit,
     } = request.qs();
     console.log("tenantsetting query: ", request.qs());
-    const countActiveSetting = await Tenantsetting.query().where(
-      "investment_type",
-      "fixed"
-    );
-    //   .getCount();
-    console.log("tenantsetting Investment count: ", countActiveSetting);
-
-    // const tenantsetting = await Tenantsetting.query().offset(0).limit(1)
+   // const tenantsetting = await Tenantsetting.query().offset(0).limit(1)
     const tenantsetting = await Tenantsetting.all();
     let sortedSettings = tenantsetting;
 
@@ -114,7 +106,7 @@ export default class TenantsettingsController {
     if (sortedSettings.length < 1) {
       return response.status(200).json({
         status: "OK",
-        message: "no general tenantsetting matched your search",
+        message: "no general tenant setting matched your search",
         data: [],
       });
     }
@@ -124,6 +116,28 @@ export default class TenantsettingsController {
       data: sortedSettings.map((tenantsetting) => tenantsetting.$original),
     });
   }
+
+
+  public async showSettingById({ params, response }: HttpContextContract) {
+    console.log("setting params: ", params);
+    let {id} = params
+   // const setting = await Setting.query().offset(0).limit(1)
+    const setting = await Tenantsetting.query().where({ id: id }).first();
+
+    if (setting === null) {
+      return response.status(200).json({
+        status: "OK",
+        message: "no tenant setting matched your search",
+        data: [],
+      });
+    }
+    // return setting(s)
+    return response.status(200).json({
+      status: "OK",
+      data: setting.$original,
+    });
+  }
+
 
   public async store({ request, response }: HttpContextContract) {
     // const user = await auth.authenticate()
@@ -167,65 +181,65 @@ export default class TenantsettingsController {
 
       let tenantsetting = await Tenantsetting.query().where({
         id: id,
-      });
+      }).first();
       console.log(" QUERY RESULT: ", tenantsetting);
-      if (tenantsetting.length > 0) {
+      if (tenantsetting !== null) {
         console.log("Investment tenantsetting Selected for Update:", tenantsetting);
         if (tenantsetting) {
-          tenantsetting[0].isOnboardingAutomated = request.input(
+          tenantsetting.isOnboardingAutomated = request.input(
             "isOnboardingAutomated"
           )
             ? request.input("isOnboardingAutomated")
-            : tenantsetting[0].isOnboardingAutomated;
-          tenantsetting[0].isTerminationAutomated = request.input(
+            : tenantsetting.isOnboardingAutomated;
+          tenantsetting.isTerminationAutomated = request.input(
             "isTerminationAutomated"
           )
             ? request.input("isTerminationAutomated")
-            : tenantsetting[0].isTerminationAutomated;
-          tenantsetting[0].isDailyContributionAutomated = request.input(
+            : tenantsetting.isTerminationAutomated;
+          tenantsetting.isDailyContributionAutomated = request.input(
             "isDailyContributionAutomated"
           )
             ? request.input("isDailyContributionAutomated")
-            : tenantsetting[0].isDailyContributionAutomated;
-          tenantsetting[0].isDepositAutomated = request.input(
+            : tenantsetting.isDailyContributionAutomated;
+          tenantsetting.isDepositAutomated = request.input(
             "isDepositAutomated"
           )
             ? request.input("isDepositAutomated")
-            : tenantsetting[0].isDepositAutomated;
-          tenantsetting[0].isWithdrawalAutomated = request.input(
+            : tenantsetting.isDepositAutomated;
+          tenantsetting.isWithdrawalAutomated = request.input(
             "isWithdrawalAutomated"
           )
             ? request.input("isWithdrawalAutomated")
-            : tenantsetting[0].isWithdrawalAutomated;
-          tenantsetting[0].isTelleringAutomated = request.input(
+            : tenantsetting.isWithdrawalAutomated;
+          tenantsetting.isTelleringAutomated = request.input(
             "isTelleringAutomated"
           )
             ? request.input("isTelleringAutomated")
-            : tenantsetting[0].isTelleringAutomated;
-          tenantsetting[0].isTransferAutomated = request.input(
+            : tenantsetting.isTelleringAutomated;
+          tenantsetting.isTransferAutomated = request.input(
             "isTransferAutomated"
           )
             ? request.input("isTransferAutomated")
-            : tenantsetting[0].isTransferAutomated;
-          tenantsetting[0].isBillPaymentAutomated = request.input(
+            : tenantsetting.isTransferAutomated;
+          tenantsetting.isBillPaymentAutomated = request.input(
             "isBillPaymentAutomated"
           )
             ? request.input("isBillPaymentAutomated")
-            : tenantsetting[0].isBillPaymentAutomated;
-          tenantsetting[0].isVoucherAutomated = request.input(
+            : tenantsetting.isBillPaymentAutomated;
+          tenantsetting.isVoucherAutomated = request.input(
             "isVoucherAutomated"
           )
             ? request.input("isVoucherAutomated")
-            : tenantsetting[0].isVoucherAutomated;
-          tenantsetting[0].tagName = request.input("tagName")
+            : tenantsetting.isVoucherAutomated;
+          tenantsetting.tagName = request.input("tagName")
             ? request.input("tagName")
-            : tenantsetting[0].tagName;
+            : tenantsetting.tagName;
 
           if (tenantsetting) {
             // send to user
-            await tenantsetting[0].save();
+            await tenantsetting.save();
             console.log("Update Investment tenantsetting:", tenantsetting);
-            return tenantsetting;
+            return tenantsetting.$original
           }
           return; // 422
         } else {
@@ -259,7 +273,7 @@ export default class TenantsettingsController {
         })
         .delete();
       console.log("Deleted data:", tenantsetting);
-      return response.send("tenantsetting Delete.");
+      return response.send("Tenant setting Deleted.");
     } else {
       return response
         .status(404)
