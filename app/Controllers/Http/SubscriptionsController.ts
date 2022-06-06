@@ -77,7 +77,7 @@ export default class SubscriptionsController {
     //   otherDetails: schema.object().members({}),
     // });
     let { merchantId, agentId } = request.qs();
-    console.log(`The request merchantId : ${merchantId} and the 
+    console.log(`The request merchantId : ${merchantId} and the
 agentId : ${agentId}`);
     // const payload: any = await request.validate({ schema: settingSchema });
     let payload: any = {};
@@ -90,9 +90,19 @@ agentId : ${agentId}`);
         return response.status(400).json({status: 'FAILED', message: 'Service not found'})
       }
        console.log("The available services:", services);
-      // get the length of the services
+
+      //  exports.handler = function (context, event, callback) {
+      //    const twiml = new Twilio.twiml.MessagingResponse();
+      //    context.FORWARDING_NUMBERS.split(/,\s?/).forEach((number) => {
+      //      twiml.message(`From: ${event.From}. Body: ${event.Body}`, {
+      //        to: number,
+      //      });
+      //    });
+      //    callback(null, twiml);
+      //  };
+      // // get the length of the services
       // testing, to be removed
-return  response.json({ status: "OK", data: subscription.$original });
+return response.json({ status: "OK", data: services.$original });
       subscription = await Subscription.create(payload);
       subscription.merchantId = merchantId;
 
