@@ -1,7 +1,5 @@
-// import Service from "App/Models/Service";
-// import Subscription from "App/Models/Subscription";
-const Service = require("App/Models/Service");
-const Subscription = require("App/Models/Subscription");
+import Service from "App/Models/Service";
+import Subscription from "App/Models/Subscription";
 
 const subscriptionHandler = async function (services, merchantId) {
   let payload = {}
@@ -37,7 +35,6 @@ const subscriptionHandler = async function (services, merchantId) {
 };
 
 let testingServices = Service.query();
-let callback;
 
 subscriptionHandler(testingServices, 12345);
 // exports.module = subscriptionHandler;
