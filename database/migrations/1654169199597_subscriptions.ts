@@ -1,4 +1,4 @@
-import BaseSchema from '@ioc:Adonis/Lucid/Schema'
+import BaseSchema from "@ioc:Adonis/Lucid/Schema";
 
 export default class extends BaseSchema {
   protected tableName = "subscriptions";
@@ -6,6 +6,8 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid("id").primary().index().unique().notNullable();
+      table.text("merchant_id").notNullable().index();
+      table.text("agent_id").nullable().index();
       table.text("name").notNullable().index();
       table.integer("price").unsigned().notNullable().index();
       table
@@ -14,12 +16,9 @@ export default class extends BaseSchema {
         .notNullable()
         .defaultTo("false")
         .index();
-          table
-            .string("recurrent_type")
-            .nullable()
-            .index();
-            table.string("duration").nullable().index();
-            table.string("expiry_date").nullable().index();
+      table.string("recurrent_type").nullable().index();
+      table.string("duration").nullable().index();
+      table.string("expiry_date").nullable().index();
       table
         .boolean("limit")
         .unsigned()
@@ -52,6 +51,8 @@ export default class extends BaseSchema {
           "other_details",
           "duration",
           "status",
+          "merchant_id",
+          "agent_id",
         ],
         "subscriptions_full_index"
       );

@@ -3,6 +3,7 @@ import Subscription from "App/Models/Subscription";
 import { schema, rules } from "@ioc:Adonis/Core/Validator";
 import Event from "@ioc:Adonis/Core/Event";
 import { DateTime } from "luxon";
+import Service from "App/Models/Service";
 export default class SubscriptionsController {
   public async index({ params, request, response }: HttpContextContract) {
     console.log("subscription params: ", params);
@@ -62,64 +63,100 @@ export default class SubscriptionsController {
 
   public async store({ request, response }: HttpContextContract) {
     // const user = await auth.authenticate()
-    const settingSchema = schema.create({
-      name: schema.string({ escape: true }, [rules.maxLength(100)]),
-      price: schema.number(),
-      recurrent: schema.boolean(),
-      recurrentType: schema.string({ escape: true }, [rules.maxLength(100)]),
-      limit: schema.boolean(),
-      limitType: schema.string({ escape: true }, [rules.maxLength(100)]),
-      limitValue: schema.string({ escape: true }, [rules.maxLength(100)]),
-      otherDetails: schema.object().members({}),
-    });
-    const payload: any = await request.validate({ schema: settingSchema });
-    const subscription = await Subscription.create(payload);
+    // check the merchantId and agentId
 
-    await subscription.save();
-    console.log("The new subscription:", subscription);
-
-    // TODO
-    console.log("A New subscription has been Created.");
-
-    // update duration and expiryDate
-    if (subscription.recurrent === true) {
-      let duration;
-      let expiryDate;
-      let recurrentType = subscription.recurrentType;
-      switch (recurrentType) {
-        case "daily":
-          duration = "one day";
-          expiryDate = DateTime.now().plus({ days: 1 });
-          console.log(`The duration for ${recurrentType} recurrent type is ${duration}`);
-          console.log(`The expiry date for ${recurrentType} recurrent type is ${expiryDate}`);
-          break;
-        case "weekly":
-          duration = "one week"; //DateTime.now().plus({ week: 1 });
-          expiryDate = DateTime.now().plus({ week: 1 });
-          console.log(`The duration for ${recurrentType} recurrent type is ${duration}`);
-          console.log(`The expiry date for ${recurrentType} recurrent type is ${expiryDate}`);
-          break;
-        case "monthly":
-          duration = "one month"; //DateTime.now().plus({ month: 1 });
-          expiryDate = DateTime.now().plus({ month: 1 });
-          console.log(`The duration for ${recurrentType} recurrent type is ${duration}`);
-          console.log(`The expiry date for ${recurrentType} recurrent type is ${expiryDate}`);
-          break;
-        case "yearly":
-          duration = "one year"; //DateTime.now().plus({ year: 1 });
-          expiryDate = DateTime.now().plus({ year: 1 });
-          console.log(`The duration for ${recurrentType} recurrent type is ${duration}`);
-          console.log(`The expiry date for ${recurrentType} recurrent type is ${expiryDate}`);
-          break;
-        default:
-          console.log(" No recurrent was set on this service");
-          break;
+    // const settingSchema = schema.create({
+    //   merchantId: schema.string({ escape: true }, [rules.maxLength(100)]),
+    //   name: schema.string({ escape: true }, [rules.maxLength(100)]),
+    //   price: schema.number(),
+    //   recurrent: schema.boolean(),
+    //   recurrentType: schema.string({ escape: true }, [rules.maxLength(100)]),
+    //   limit: schema.boolean(),
+    //   limitType: schema.string({ escape: true }, [rules.maxLength(100)]),
+    //   limitValue: schema.string({ escape: true }, [rules.maxLength(100)]),
+    //   otherDetails: schema.object().members({}),
+    // });
+    let { merchantId, agentId } = request.qs();
+    // const payload: any = await request.validate({ schema: settingSchema });
+    let payload: any = {};
+    let subscription;
+    let services;
+    if (merchantId) {
+      // search the available services
+      services = await Service.query()
+      if (services.length < 0){
+        return response.status(400).json({status: 'FAILED', message: 'Service not found'})
       }
-      subscription.duration = duration;
-      subscription.expiryDate = expiryDate;
+      // get the length of the services
+      
+      subscription = await Subscription.create(payload);
+      subscription.merchantId = merchantId;
 
-      // save the update
       await subscription.save();
+      console.log("The new subscription:", subscription);
+
+      // TODO
+      console.log("A New subscription has been Created.");
+      // update duration and expiryDate
+      if (subscription.recurrent === true) {
+        let duration;
+        let expiryDate;
+        let recurrentType = subscription.recurrentType;
+        switch (recurrentType) {
+          case "daily":
+            duration = "one day";
+            expiryDate = DateTime.now().plus({ days: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "weekly":
+            duration = "one week"; //DateTime.now().plus({ week: 1 });
+            expiryDate = DateTime.now().plus({ week: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "monthly":
+            duration = "one month"; //DateTime.now().plus({ month: 1 });
+            expiryDate = DateTime.now().plus({ month: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "yearly":
+            duration = "one year"; //DateTime.now().plus({ year: 1 });
+            expiryDate = DateTime.now().plus({ year: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          default:
+            console.log(" No recurrent was set on this service");
+            break;
+        }
+        subscription.duration = duration;
+        subscription.expiryDate = expiryDate;
+
+        // save the update
+        await subscription.save();
+      }
+    }
+
+    if (agentId) {
+      subscription.agentId = agentId;
     }
     // Save subscription new status to Database
     await subscription.save();

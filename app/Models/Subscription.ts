@@ -1,10 +1,16 @@
-import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from "luxon";
+import { BaseModel, beforeCreate, column } from "@ioc:Adonis/Lucid/Orm";
 import { v4 as uuid } from "uuid";
 
 export default class Subscription extends BaseModel {
   @column({ isPrimary: true })
   public id: string;
+
+  @column()
+  public merchantId: string;
+
+  @column()
+  public agentId: string;
 
   @column()
   public name: string;
