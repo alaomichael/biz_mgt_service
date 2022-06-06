@@ -81,50 +81,116 @@ export default class SubscriptionsController {
     console.log(`The request merchantId : ${merchantId} and the
 agentId : ${agentId}`);
 
-// subcription handler
 
-const subscriptionHandler = async function (services, merchantId) {
+// subcription handler
+const subscriptionHandler = async function(services, merchantId) {
   let payload = {}
   let subscriptions:any = [];
-  services.forEach(async (service) => {
-    let {
-      name,
-      price,
-      recurrent,
-      recurrentType,
-      limit,
-      limitType,
-      limitValue,
-      otherDetails,
-      status,
-    } = service;
-    payload = {
-      name,
-      merchantId,
-      price,
-      recurrent,
-      recurrentType,
-      limit,
-      limitType,
-      limitValue,
-      otherDetails,
-      status,
-    };
-    let sub = await Subscription.create(payload);
-    console.log("Sub, line 116 :", sub)
-    await subscriptions.push(sub);
+  let resultSub = new Promise(async (resolve, reject) => {
+    if (!merchantId || !services) {
+      reject(new Error());
+    }
+    let subResult = await services.forEach(async (service) => {
+      let {
+        name,
+        price,
+        recurrent,
+        recurrentType,
+        limit,
+        limitType,
+        limitValue,
+        otherDetails,
+        status,
+      } = service;
+      payload = {
+        name,
+        merchantId,
+        price,
+        recurrent,
+        recurrentType,
+        limit,
+        limitType,
+        limitValue,
+        otherDetails,
+        status,
+      };
+      let subscription = await Subscription.create(payload);
+      if (subscription.recurrent === true) {
+        let duration;
+        let expiryDate;
+        let recurrentType = subscription.recurrentType;
+        switch (recurrentType) {
+          case "daily":
+            duration = "one day";
+            expiryDate = DateTime.now().plus({ days: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "weekly":
+            duration = "one week"; //DateTime.now().plus({ week: 1 });
+            expiryDate = DateTime.now().plus({ week: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "monthly":
+            duration = "one month"; //DateTime.now().plus({ month: 1 });
+            expiryDate = DateTime.now().plus({ month: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          case "yearly":
+            duration = "one year"; //DateTime.now().plus({ year: 1 });
+            expiryDate = DateTime.now().plus({ year: 1 });
+            console.log(
+              `The duration for ${recurrentType} recurrent type is ${duration}`
+            );
+            console.log(
+              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+            );
+            break;
+          default:
+            console.log(" No recurrent was set on this service");
+            break;
+        }
+        subscription.duration = duration;
+        subscription.expiryDate = expiryDate;
+
+        // save the update
+        await subscription.save();
+      }
+      // console.log("Sub, line 116 :", subscription)
+      await subscriptions.push(subscription);
+      console.log("Sub, line 170 :", subscriptions);
+       subResult = subscriptions;
+       console.log("Sub, line 177 :", subResult);
+     return subResult;
+    });
+    console.log(" The RESULT of subscriptions, line 180 :", subResult);
+    // return result;
+    resolve(subResult);
   });
-  return await subscriptions;
+return resultSub;
 };
 
 
     // const payload: any = await request.validate({ schema: settingSchema });
     let payload: any = {};
     let subscription;
-    let services;
+    let services = await Service.query()
     if (merchantId) {
       // search the available services
-      services = await Service.query()
       if (services.length < 0){
         return response.status(400).json({status: 'FAILED', message: 'Service not found'})
       }
@@ -143,8 +209,8 @@ const subscriptionHandler = async function (services, merchantId) {
 
       let sub = await subscriptionHandler(services, merchantId);
       // testing, to be removed
-      console.log( "The subscription handler returned,line 106 :", sub)
-      return response.json({ status: "OK", data: services.$original });
+      console.log( "The subscription handler returned,line 213 :", sub)
+      return response.json({ status: "OK", data: services.map((service) => {return service.$original}) });
       subscription = await Subscription.create(payload);
       subscription.merchantId = merchantId;
 
