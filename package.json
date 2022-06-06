@@ -2,6 +2,7 @@
   "name": "biz_mgt_service",
   "version": "1.0.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "dev": "node ace serve --watch",
     "build": "node ace build --production",
@@ -46,5 +47,8 @@
     "twilio": "^3.77.2",
     "url-parse": "^1.5.10",
     "uuid": "^8.3.2"
+  },
+  "engines": {
+    "node": "^16.14.2"
   }
 }

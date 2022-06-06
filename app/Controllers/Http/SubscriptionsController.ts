@@ -4,6 +4,7 @@ import Subscription from "App/Models/Subscription";
 import Event from "@ioc:Adonis/Core/Event";
 import { DateTime } from "luxon";
 import Service from "App/Models/Service";
+import {subscriptionHandler} from "App/Helpers/subscriber"
 export default class SubscriptionsController {
   public async index({ params, request, response }: HttpContextContract) {
     console.log("subscription params: ", params);
@@ -79,6 +80,44 @@ export default class SubscriptionsController {
     let { merchantId, agentId } = request.qs();
     console.log(`The request merchantId : ${merchantId} and the
 agentId : ${agentId}`);
+
+// subcription handler
+
+const subscriptionHandler = async function (services, merchantId) {
+  let payload = {}
+  let subscriptions:any = [];
+  services.forEach(async (service) => {
+    let {
+      name,
+      price,
+      recurrent,
+      recurrentType,
+      limit,
+      limitType,
+      limitValue,
+      otherDetails,
+      status,
+    } = service;
+    payload = {
+      name,
+      merchantId,
+      price,
+      recurrent,
+      recurrentType,
+      limit,
+      limitType,
+      limitValue,
+      otherDetails,
+      status,
+    };
+    let sub = await Subscription.create(payload);
+    console.log("Sub, line 116 :", sub)
+    await subscriptions.push(sub);
+  });
+  return await subscriptions;
+};
+
+
     // const payload: any = await request.validate({ schema: settingSchema });
     let payload: any = {};
     let subscription;
@@ -101,8 +140,11 @@ agentId : ${agentId}`);
       //    callback(null, twiml);
       //  };
       // // get the length of the services
+
+      let sub = await subscriptionHandler(services, merchantId);
       // testing, to be removed
-return response.json({ status: "OK", data: services.$original });
+      console.log( "The subscription handler returned,line 106 :", sub)
+      return response.json({ status: "OK", data: services.$original });
       subscription = await Subscription.create(payload);
       subscription.merchantId = merchantId;
 

@@ -29,11 +29,6 @@ const API_URL = Env.get("API_URL");
 
 
 
-
-module.exports = {
-
-};
-
 export {
 
 };
