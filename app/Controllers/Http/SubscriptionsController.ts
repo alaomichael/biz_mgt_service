@@ -1,6 +1,6 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import Subscription from "App/Models/Subscription";
-import { schema, rules } from "@ioc:Adonis/Core/Validator";
+// import { schema, rules } from "@ioc:Adonis/Core/Validator";
 import Event from "@ioc:Adonis/Core/Event";
 import { DateTime } from "luxon";
 import Service from "App/Models/Service";
@@ -77,6 +77,8 @@ export default class SubscriptionsController {
     //   otherDetails: schema.object().members({}),
     // });
     let { merchantId, agentId } = request.qs();
+    console.log(`The request merchantId : ${merchantId} and the 
+agentId : ${agentId}`);
     // const payload: any = await request.validate({ schema: settingSchema });
     let payload: any = {};
     let subscription;
@@ -87,9 +89,10 @@ export default class SubscriptionsController {
       if (services.length < 0){
         return response.status(400).json({status: 'FAILED', message: 'Service not found'})
       }
-       console.log("The new subscription:", services);
+       console.log("The available services:", services);
       // get the length of the services
-
+      // testing, to be removed
+return  response.json({ status: "OK", data: subscription.$original });
       subscription = await Subscription.create(payload);
       subscription.merchantId = merchantId;
 
