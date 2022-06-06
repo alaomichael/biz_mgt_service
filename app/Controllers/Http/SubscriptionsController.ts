@@ -87,8 +87,9 @@ export default class SubscriptionsController {
       if (services.length < 0){
         return response.status(400).json({status: 'FAILED', message: 'Service not found'})
       }
+       console.log("The new subscription:", services);
       // get the length of the services
-      
+
       subscription = await Subscription.create(payload);
       subscription.merchantId = merchantId;
 
