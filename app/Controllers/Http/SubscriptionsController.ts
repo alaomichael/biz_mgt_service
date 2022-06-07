@@ -4,6 +4,8 @@ import Subscription from "App/Models/Subscription";
 import Event from "@ioc:Adonis/Core/Event";
 import { DateTime } from "luxon";
 import Service from "App/Models/Service";
+import Merchant from "App/Models/Merchant";
+import Agent from "App/Models/Agent";
 export default class SubscriptionsController {
   public async index({ params, request, response }: HttpContextContract) {
     console.log("subscription params: ", params);
@@ -307,7 +309,10 @@ export default class SubscriptionsController {
           .json({ status: "FAILED", message: "Service not found" });
       }
       // console.log("The available services:", services);
-      // get the length of the services
+      // check if merchant exist
+      let merchant = await Merchant.query().where({id: merchantId}).first();
+      console.log(merchant)
+      if (!merchant) {return response.json({ status: "FAILED", message: "merchant does not exist" });}
       let sub = await subscriptionHandler(services, merchantId, agentId);
       console.log("The subscription handler returned,line 312 :", sub);
       // merchant subscriptions
@@ -333,70 +338,10 @@ export default class SubscriptionsController {
 
       return response.json({
         status: "OK",
-        data: subscriptions.map((subscription) => subscription.$original),
+        data: await subscriptions.map((subscription) => subscription.$original),
       });
       // subscription = await Subscription.create(payload);
-      // subscription.merchantId = merchantId;
-
       // await subscription.save();
-
-      // TODO
-      // update duration and expiryDate
-      // if (subscription.recurrent === true) {
-      //   let duration;
-      //   let expiryDate;
-      //   let recurrentType = subscription.recurrentType;
-      //   switch (recurrentType) {
-      //     case "daily":
-      //       duration = "one day";
-      //       expiryDate = DateTime.now().plus({ days: 1 });
-      //       console.log(
-      //         `The duration for ${recurrentType} recurrent type is ${duration}`
-      //       );
-      //       console.log(
-      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-      //       );
-      //       break;
-      //     case "weekly":
-      //       duration = "one week"; //DateTime.now().plus({ week: 1 });
-      //       expiryDate = DateTime.now().plus({ week: 1 });
-      //       console.log(
-      //         `The duration for ${recurrentType} recurrent type is ${duration}`
-      //       );
-      //       console.log(
-      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-      //       );
-      //       break;
-      //     case "monthly":
-      //       duration = "one month"; //DateTime.now().plus({ month: 1 });
-      //       expiryDate = DateTime.now().plus({ month: 1 });
-      //       console.log(
-      //         `The duration for ${recurrentType} recurrent type is ${duration}`
-      //       );
-      //       console.log(
-      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-      //       );
-      //       break;
-      //     case "yearly":
-      //       duration = "one year"; //DateTime.now().plus({ year: 1 });
-      //       expiryDate = DateTime.now().plus({ year: 1 });
-      //       console.log(
-      //         `The duration for ${recurrentType} recurrent type is ${duration}`
-      //       );
-      //       console.log(
-      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-      //       );
-      //       break;
-      //     default:
-      //       console.log(" No recurrent was set on this service");
-      //       break;
-      //   }
-      //   subscription.duration = duration;
-      //   subscription.expiryDate = expiryDate;
-
-      //   // save the update
-      //   await subscription.save();
-      // }
     } else if (merchantId && agentId) {
       if (services.length < 0) {
         return response
@@ -404,13 +349,21 @@ export default class SubscriptionsController {
           .json({ status: "FAILED", message: "Service not found" });
       }
       console.log("The available services:", services);
+      // check if merchant exist
+      let agent = await Agent.query().where({ id: agentId }).first();
+      console.log(agent);
+      if (!agent) {
+        return response.json({
+          status: "FAILED",
+          message: "agent does not exist",
+        });
+      }
       let sub = await subscriptionHandler(services, merchantId, agentId);
-      // testing, to be removed
       console.log("The subscription handler returned,line 409 :", sub);
-
       // merchant subscriptions
       let subscriptions = await Subscription.query().where({
-        merchantId: merchantId,agentId: agentId
+        merchantId: merchantId,
+        agentId: agentId,
       });
       console.log(
         "The subscription handler returned,line 414 :",
@@ -431,7 +384,7 @@ export default class SubscriptionsController {
 
       return response.json({
         status: "OK",
-        data: subscriptions.map((subscription) => subscription.$original),
+        data: await subscriptions.map((subscription) => subscription.$original),
       });
     }
    }

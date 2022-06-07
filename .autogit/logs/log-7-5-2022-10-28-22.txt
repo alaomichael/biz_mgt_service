@@ -1,0 +1,15 @@
+-------------------- Auto-Git Log --------------------
+Tue Jun 07 2022 10:28:22 GMT+0100 (West Africa Standard Time)
+------------------------------------------------------
+
+Modified files:
+* app/Controllers/Http/SubscriptionsController.ts
+
+
+Created files:
+
+
+Deleted files:
+
+
+Renamed files:
