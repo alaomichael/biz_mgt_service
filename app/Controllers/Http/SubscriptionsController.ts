@@ -201,7 +201,7 @@ agentId : ${agentId}`);
     // Save subscription new status to Database
     await subscription.save();
     // Send subscription Creation Message to Queue
-    
+
     Event.emit("new:subscription", {
       id: subscription.id,
       // @ts-ignore
