@@ -176,12 +176,12 @@ export default class SubscriptionsController {
             }
             // console.log("Sub, line 116 :", subscription)
             await subscriptions.push(subscription);
-            console.log("Sub, line 170 :", subscriptions);
+            // console.log("Sub, line 179 :", subscriptions);
             subResult = subscriptions;
-            console.log("Sub, line 177 :", subResult);
+            // console.log("Sub, line 181 :", subResult);
             return subResult;
           });
-          console.log(" The RESULT of subscriptions, line 180 :", subResult);
+          // console.log(" The RESULT of subscriptions, line 184 :", subResult);
           // return result;
           resolve(subResult);
           return resultSub;
@@ -222,7 +222,7 @@ export default class SubscriptionsController {
                 otherDetails,
                 status,
               };
-              console.log("Agent payload, line 223: " + payload);
+              console.log("Agent payload, line 225: " + payload);
               let subscription = await Subscription.create(payload);
               if (subscription.recurrent === true) {
                 let duration;
@@ -279,26 +279,25 @@ export default class SubscriptionsController {
                 // save the update
                 await subscription.save();
               }
-              // console.log("Sub, line 116 :", subscription)
+              // console.log("Sub, line 282 :", subscription)
               await subscriptions.push(subscription);
-              console.log("Sub, line 170 :", subscriptions);
+              // console.log("Sub, line 284 :", subscriptions);
               subResult = subscriptions;
-              console.log("Sub, line 177 :", subResult);
+              // console.log("Sub, line 286 :", subResult);
               return subResult;
             });
-            console.log(" The RESULT of subscriptions, line 180 :", subResult);
+            console.log(" The RESULT of subscriptions, line 289 :", subResult);
             // return result;
             resolve(subResult);
           });
           return resultSub;
         }
       }
-
     };
 
     // const payload: any = await request.validate({ schema: settingSchema });
-    let payload: any = {};
-    let subscription;
+    // let payload: any = {};
+    // let subscription;
     // search the available services
     let services = await Service.query();
     if (merchantId) {
@@ -307,82 +306,98 @@ export default class SubscriptionsController {
           .status(400)
           .json({ status: "FAILED", message: "Service not found" });
       }
-      console.log("The available services:", services);
+      // console.log("The available services:", services);
       // get the length of the services
       let sub = await subscriptionHandler(services, merchantId, agentId);
-      // testing, to be removed
-      console.log("The subscription handler returned,line 204 :", sub);
+      console.log("The subscription handler returned,line 312 :", sub);
+      // merchant subscriptions
+      let subscriptions = await Subscription.query().where({
+        merchantId: merchantId,
+      });
+      console.log(
+        "The subscription handler returned,line 317 :",
+        subscriptions
+      );
+      for (let index = 0; index < subscriptions.length; index++) {
+        const element = subscriptions[index];
+        Event.emit("new:subscription", {
+          id: element.id,
+          // @ts-ignore
+          extras: element.otherDetails,
+        });
+        console.log("The new element, line 328:", element.name);
+      }
+      console.log("New subscriptions has been Created.");
+      console.log("The new subscriptions,line 331:", subscriptions);
+      // Send subscription Creation Message to Queue
+
       return response.json({
         status: "OK",
-        data: services.map((service) => service.$original),
+        data: subscriptions.map((subscription) => subscription.$original),
       });
-      subscription = await Subscription.create(payload);
-      subscription.merchantId = merchantId;
+      // subscription = await Subscription.create(payload);
+      // subscription.merchantId = merchantId;
 
-      await subscription.save();
-      console.log("The new subscription:", subscription);
+      // await subscription.save();
 
       // TODO
-      console.log("A New subscription has been Created.");
       // update duration and expiryDate
-      if (subscription.recurrent === true) {
-        let duration;
-        let expiryDate;
-        let recurrentType = subscription.recurrentType;
-        switch (recurrentType) {
-          case "daily":
-            duration = "one day";
-            expiryDate = DateTime.now().plus({ days: 1 });
-            console.log(
-              `The duration for ${recurrentType} recurrent type is ${duration}`
-            );
-            console.log(
-              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-            );
-            break;
-          case "weekly":
-            duration = "one week"; //DateTime.now().plus({ week: 1 });
-            expiryDate = DateTime.now().plus({ week: 1 });
-            console.log(
-              `The duration for ${recurrentType} recurrent type is ${duration}`
-            );
-            console.log(
-              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-            );
-            break;
-          case "monthly":
-            duration = "one month"; //DateTime.now().plus({ month: 1 });
-            expiryDate = DateTime.now().plus({ month: 1 });
-            console.log(
-              `The duration for ${recurrentType} recurrent type is ${duration}`
-            );
-            console.log(
-              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-            );
-            break;
-          case "yearly":
-            duration = "one year"; //DateTime.now().plus({ year: 1 });
-            expiryDate = DateTime.now().plus({ year: 1 });
-            console.log(
-              `The duration for ${recurrentType} recurrent type is ${duration}`
-            );
-            console.log(
-              `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
-            );
-            break;
-          default:
-            console.log(" No recurrent was set on this service");
-            break;
-        }
-        subscription.duration = duration;
-        subscription.expiryDate = expiryDate;
+      // if (subscription.recurrent === true) {
+      //   let duration;
+      //   let expiryDate;
+      //   let recurrentType = subscription.recurrentType;
+      //   switch (recurrentType) {
+      //     case "daily":
+      //       duration = "one day";
+      //       expiryDate = DateTime.now().plus({ days: 1 });
+      //       console.log(
+      //         `The duration for ${recurrentType} recurrent type is ${duration}`
+      //       );
+      //       console.log(
+      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+      //       );
+      //       break;
+      //     case "weekly":
+      //       duration = "one week"; //DateTime.now().plus({ week: 1 });
+      //       expiryDate = DateTime.now().plus({ week: 1 });
+      //       console.log(
+      //         `The duration for ${recurrentType} recurrent type is ${duration}`
+      //       );
+      //       console.log(
+      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+      //       );
+      //       break;
+      //     case "monthly":
+      //       duration = "one month"; //DateTime.now().plus({ month: 1 });
+      //       expiryDate = DateTime.now().plus({ month: 1 });
+      //       console.log(
+      //         `The duration for ${recurrentType} recurrent type is ${duration}`
+      //       );
+      //       console.log(
+      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+      //       );
+      //       break;
+      //     case "yearly":
+      //       duration = "one year"; //DateTime.now().plus({ year: 1 });
+      //       expiryDate = DateTime.now().plus({ year: 1 });
+      //       console.log(
+      //         `The duration for ${recurrentType} recurrent type is ${duration}`
+      //       );
+      //       console.log(
+      //         `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+      //       );
+      //       break;
+      //     default:
+      //       console.log(" No recurrent was set on this service");
+      //       break;
+      //   }
+      //   subscription.duration = duration;
+      //   subscription.expiryDate = expiryDate;
 
-        // save the update
-        await subscription.save();
-      }
-    }
-
-    if (merchantId && agentId) {
+      //   // save the update
+      //   await subscription.save();
+      // }
+    } else if (merchantId && agentId) {
       if (services.length < 0) {
         return response
           .status(400)
@@ -391,28 +406,35 @@ export default class SubscriptionsController {
       console.log("The available services:", services);
       let sub = await subscriptionHandler(services, merchantId, agentId);
       // testing, to be removed
-      console.log("The subscription handler returned,line 204 :", sub);
+      console.log("The subscription handler returned,line 409 :", sub);
 
-      // subscription.agentId = agentId;
+      // merchant subscriptions
+      let subscriptions = await Subscription.query().where({
+        merchantId: merchantId,agentId: agentId
+      });
+      console.log(
+        "The subscription handler returned,line 414 :",
+        subscriptions
+      );
+      for (let index = 0; index < subscriptions.length; index++) {
+        const element = subscriptions[index];
+        Event.emit("new:subscription", {
+          id: element.id,
+          // @ts-ignore
+          extras: element.otherDetails,
+        });
+        console.log("The new element, line 426:", element.name);
+      }
+      console.log("New subscriptions has been Created.");
+      console.log("The new subscriptions,line 429:", subscriptions);
+      // Send subscription Creation Message to Queue
 
       return response.json({
         status: "OK",
-        data: services.map((service) => service.$original),
+        data: subscriptions.map((subscription) => subscription.$original),
       });
-
-      return response.json({ status: "OK", data: subscription.$original });
     }
-    // Save subscription new status to Database
-    await subscription.save();
-    // Send subscription Creation Message to Queue
-
-    Event.emit("new:subscription", {
-      id: subscription.id,
-      // @ts-ignore
-      extras: subscription.additionalDetails,
-    });
-    return response.json({ status: "OK", data: subscription.$original });
-  }
+   }
 
   public async showSubscriptionByMerchantId({
     params,
