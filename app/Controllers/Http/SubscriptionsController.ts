@@ -4,7 +4,6 @@ import Subscription from "App/Models/Subscription";
 import Event from "@ioc:Adonis/Core/Event";
 import { DateTime } from "luxon";
 import Service from "App/Models/Service";
-import { subscriptionHandler } from "App/Helpers/subscriber";
 export default class SubscriptionsController {
   public async index({ params, request, response }: HttpContextContract) {
     console.log("subscription params: ", params);
@@ -78,8 +77,224 @@ export default class SubscriptionsController {
     //   otherDetails: schema.object().members({}),
     // });
     let { merchantId, agentId } = request.qs();
-    console.log(`The request merchantId : ${merchantId} and the
-agentId : ${agentId}`);
+    console.log(
+      `The request merchantId : ${merchantId} and the agentId : ${agentId}`
+    );
+
+    // subcription handler
+    const subscriptionHandler = async function (services, merchantId, agentId) {
+      let payload = {};
+      let subscriptions: any = [];
+      agentId;
+      if (
+        (merchantId && agentId === undefined) ||
+        (merchantId && agentId === null)
+      ) {
+        let resultSub = new Promise(async (resolve, reject) => {
+          if (!merchantId || !services) {
+            reject(new Error());
+          }
+          let subResult = await services.forEach(async (service) => {
+            let {
+              name,
+              price,
+              recurrent,
+              recurrentType,
+              limit,
+              limitType,
+              limitValue,
+              otherDetails,
+              status,
+            } = service;
+            payload = {
+              name,
+              merchantId,
+              price,
+              recurrent,
+              recurrentType,
+              limit,
+              limitType,
+              limitValue,
+              otherDetails,
+              status,
+            };
+            let subscription = await Subscription.create(payload);
+            if (subscription.recurrent === true) {
+              let duration;
+              let expiryDate;
+              let recurrentType = subscription.recurrentType;
+              switch (recurrentType) {
+                case "daily":
+                  duration = "one day";
+                  expiryDate = DateTime.now().plus({ days: 1 });
+                  console.log(
+                    `The duration for ${recurrentType} recurrent type is ${duration}`
+                  );
+                  console.log(
+                    `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                  );
+                  break;
+                case "weekly":
+                  duration = "one week"; //DateTime.now().plus({ week: 1 });
+                  expiryDate = DateTime.now().plus({ week: 1 });
+                  console.log(
+                    `The duration for ${recurrentType} recurrent type is ${duration}`
+                  );
+                  console.log(
+                    `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                  );
+                  break;
+                case "monthly":
+                  duration = "one month"; //DateTime.now().plus({ month: 1 });
+                  expiryDate = DateTime.now().plus({ month: 1 });
+                  console.log(
+                    `The duration for ${recurrentType} recurrent type is ${duration}`
+                  );
+                  console.log(
+                    `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                  );
+                  break;
+                case "yearly":
+                  duration = "one year"; //DateTime.now().plus({ year: 1 });
+                  expiryDate = DateTime.now().plus({ year: 1 });
+                  console.log(
+                    `The duration for ${recurrentType} recurrent type is ${duration}`
+                  );
+                  console.log(
+                    `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                  );
+                  break;
+                default:
+                  console.log(" No recurrent was set on this service");
+                  break;
+              }
+              subscription.duration = duration;
+              subscription.expiryDate = expiryDate;
+
+              // save the update
+              await subscription.save();
+            }
+            // console.log("Sub, line 116 :", subscription)
+            await subscriptions.push(subscription);
+            console.log("Sub, line 170 :", subscriptions);
+            subResult = subscriptions;
+            console.log("Sub, line 177 :", subResult);
+            return subResult;
+          });
+          console.log(" The RESULT of subscriptions, line 180 :", subResult);
+          // return result;
+          resolve(subResult);
+          return resultSub;
+        });
+      } else if (merchantId && agentId) {
+        if (agentId !== null || agentId !== undefined) {
+          services = await Subscription.query().where({
+            merchantId: merchantId,
+          });
+          console.log("Merchant services, line 194: ", services);
+          let resultSub = new Promise(async (resolve, reject) => {
+            if (!merchantId || !services) {
+              reject(new Error());
+            }
+            let subResult = await services.forEach(async (service) => {
+              let {
+                name,
+                price,
+                merchantId,
+                recurrent,
+                recurrentType,
+                limit,
+                limitType,
+                limitValue,
+                otherDetails,
+                status,
+              } = service;
+              payload = {
+                name,
+                merchantId,
+                agentId,
+                price,
+                recurrent,
+                recurrentType,
+                limit,
+                limitType,
+                limitValue,
+                otherDetails,
+                status,
+              };
+              console.log("Agent payload, line 223: " + payload);
+              let subscription = await Subscription.create(payload);
+              if (subscription.recurrent === true) {
+                let duration;
+                let expiryDate;
+                let recurrentType = subscription.recurrentType;
+                switch (recurrentType) {
+                  case "daily":
+                    duration = "one day";
+                    expiryDate = DateTime.now().plus({ days: 1 });
+                    console.log(
+                      `The duration for ${recurrentType} recurrent type is ${duration}`
+                    );
+                    console.log(
+                      `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                    );
+                    break;
+                  case "weekly":
+                    duration = "one week"; //DateTime.now().plus({ week: 1 });
+                    expiryDate = DateTime.now().plus({ week: 1 });
+                    console.log(
+                      `The duration for ${recurrentType} recurrent type is ${duration}`
+                    );
+                    console.log(
+                      `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                    );
+                    break;
+                  case "monthly":
+                    duration = "one month"; //DateTime.now().plus({ month: 1 });
+                    expiryDate = DateTime.now().plus({ month: 1 });
+                    console.log(
+                      `The duration for ${recurrentType} recurrent type is ${duration}`
+                    );
+                    console.log(
+                      `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                    );
+                    break;
+                  case "yearly":
+                    duration = "one year"; //DateTime.now().plus({ year: 1 });
+                    expiryDate = DateTime.now().plus({ year: 1 });
+                    console.log(
+                      `The duration for ${recurrentType} recurrent type is ${duration}`
+                    );
+                    console.log(
+                      `The expiry date for ${recurrentType} recurrent type is ${expiryDate}`
+                    );
+                    break;
+                  default:
+                    console.log(" No recurrent was set on this service");
+                    break;
+                }
+                subscription.duration = duration;
+                subscription.expiryDate = expiryDate;
+
+                // save the update
+                await subscription.save();
+              }
+              // console.log("Sub, line 116 :", subscription)
+              await subscriptions.push(subscription);
+              console.log("Sub, line 170 :", subscriptions);
+              subResult = subscriptions;
+              console.log("Sub, line 177 :", subResult);
+              return subResult;
+            });
+            console.log(" The RESULT of subscriptions, line 180 :", subResult);
+            // return result;
+            resolve(subResult);
+          });
+          return resultSub;
+        }
+      }
+
+    };
 
     // const payload: any = await request.validate({ schema: settingSchema });
     let payload: any = {};
@@ -93,19 +308,8 @@ agentId : ${agentId}`);
           .json({ status: "FAILED", message: "Service not found" });
       }
       console.log("The available services:", services);
-
-      //  exports.handler = function (context, event, callback) {
-      //    const twiml = new Twilio.twiml.MessagingResponse();
-      //    context.FORWARDING_NUMBERS.split(/,\s?/).forEach((number) => {
-      //      twiml.message(`From: ${event.From}. Body: ${event.Body}`, {
-      //        to: number,
-      //      });
-      //    });
-      //    callback(null, twiml);
-      //  };
-      // // get the length of the services
-
-      let sub = await subscriptionHandler(services, merchantId);
+      // get the length of the services
+      let sub = await subscriptionHandler(services, merchantId, agentId);
       // testing, to be removed
       console.log("The subscription handler returned,line 204 :", sub);
       return response.json({
@@ -185,11 +389,11 @@ agentId : ${agentId}`);
           .json({ status: "FAILED", message: "Service not found" });
       }
       console.log("The available services:", services);
-      let sub = await subscriptionHandler(services, merchantId);
+      let sub = await subscriptionHandler(services, merchantId, agentId);
       // testing, to be removed
       console.log("The subscription handler returned,line 204 :", sub);
 
-      subscription.agentId = agentId;
+      // subscription.agentId = agentId;
 
       return response.json({
         status: "OK",
