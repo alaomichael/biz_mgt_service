@@ -58,13 +58,7 @@ table
         .notNullable()
         .defaultTo("pending")
         .index();
-
-table
-        .string("status", 255)
-        .notNullable()
-        .defaultTo("pending")
-        .index();
-
+        
       table.float("long").unsigned().nullable();
       table.float("lat").unsigned().nullable();
 

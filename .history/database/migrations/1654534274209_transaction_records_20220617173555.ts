@@ -47,24 +47,12 @@ export default class extends BaseSchema {
         table.string("action",255).nullable();
         table.string("duration",255).nullable();
 table.dateTime("expiry_date").nullable();
-table.boolean("limit").notNullable().defaultTo(false);
-table.string("limit_type",255).nullable();
-table.string("limit_value",255).nullable();
-table.json("other_details").nullable();
-
-
-table
+table.boolean("limit").
+      table
         .string("approval_status", 255)
         .notNullable()
         .defaultTo("pending")
         .index();
-
-table
-        .string("status", 255)
-        .notNullable()
-        .defaultTo("pending")
-        .index();
-
       table.float("long").unsigned().nullable();
       table.float("lat").unsigned().nullable();
 

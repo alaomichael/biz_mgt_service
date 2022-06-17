@@ -1,9 +1,6 @@
 import { DateTime } from "luxon";
-import { BaseModel, beforeCreate, BelongsTo, belongsTo, column } from "@ioc:Adonis/Lucid/Orm";
+import { BaseModel, beforeCreate, column } from "@ioc:Adonis/Lucid/Orm";
 import { v4 as uuid } from "uuid";
-import Merchant from "./Merchant";
-import Agent from "./Agent";
-import Tenant from "./Tenant";
 
 export default class TransactionRecord extends BaseModel {
   @column({ isPrimary: true })
@@ -60,12 +57,6 @@ export default class TransactionRecord extends BaseModel {
   @column()
   public approvalStatus: string;
 
-  @column()
-  public long: number;
-
-  @column()
-  public lat: number;
-
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 
@@ -74,16 +65,6 @@ export default class TransactionRecord extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime;
-
-
-  @belongsTo(() => Tenant, { localKey: "tenantId" })
-  public tenant: BelongsTo<typeof Tenant>;
-
-  @belongsTo(() => Merchant, { localKey: "merchantId" })
-  public merchant: BelongsTo<typeof Merchant>;
-
-  @belongsTo(() => Agent, { localKey: "agentId" })
-  public agent: BelongsTo<typeof Agent>;
 
   @beforeCreate()
   public static assignUuid(transactionRecord: TransactionRecord) {

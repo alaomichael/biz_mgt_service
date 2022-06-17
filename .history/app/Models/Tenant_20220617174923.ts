@@ -3,7 +3,6 @@ import { column, beforeCreate, BaseModel, hasMany, HasMany } from "@ioc:Adonis/L
 import { v4 as uuid } from "uuid";
 import Merchant from "./Merchant";
 import TransactionRecord from "./TransactionRecord";
-import Agent from "./Agent";
 
 export default class Tenant extends BaseModel {
   @column({ isPrimary: true })
@@ -45,14 +44,11 @@ export default class Tenant extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime;
 
-  @hasMany(() => Merchant, { localKey: "id" })
+  @hasMany(() => Merchant)
   public merchants: HasMany<typeof Merchant>;
 
-  @hasMany(() => Agent, { localKey: "id" })
-  public agents: HasMany<typeof Agent>;
-
-  @hasMany(() => TransactionRecord, { localKey: "id" })
-  public transactionRecords: HasMany<typeof TransactionRecord>;
+  @hasMany(() => TransactionRecord)
+  public TtransactionRecords: HasMany<typeof TransactionRecord>;
 
   @beforeCreate()
   public static assignUuid(tenant: Tenant) {

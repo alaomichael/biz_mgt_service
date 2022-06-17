@@ -28,43 +28,18 @@ export default class extends BaseSchema {
         .index()
         .onDelete("CASCADE");
 
-      table.string("sender",255).notNullable().index();
-        table
-          .string("receiver", 255)
-          .notNullable()
-          .defaultTo("nil")
-          .index();
- table.string("service_name", 255).notNullable().index();
+      table.text("user_id").unsigned().notNullable().unique().index();
 
       table
-        .string("type", 255)
+        .string("request_type", 255)
         .notNullable()
         .defaultTo("register tenant")
         .index();
-        table.float("amount").notNullable().defaultTo(0);
-
-        table.boolean("recurrent").notNullable().defaultTo(false);
-        table.string("action",255).nullable();
-        table.string("duration",255).nullable();
-table.dateTime("expiry_date").nullable();
-table.boolean("limit").notNullable().defaultTo(false);
-table.string("limit_type",255).nullable();
-table.string("limit_value",255).nullable();
-table.json("other_details").nullable();
-
-
-table
+      table
         .string("approval_status", 255)
         .notNullable()
         .defaultTo("pending")
         .index();
-
-table
-        .string("status", 255)
-        .notNullable()
-        .defaultTo("pending")
-        .index();
-
       table.float("long").unsigned().nullable();
       table.float("lat").unsigned().nullable();
 

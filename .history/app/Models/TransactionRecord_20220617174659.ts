@@ -2,8 +2,6 @@ import { DateTime } from "luxon";
 import { BaseModel, beforeCreate, BelongsTo, belongsTo, column } from "@ioc:Adonis/Lucid/Orm";
 import { v4 as uuid } from "uuid";
 import Merchant from "./Merchant";
-import Agent from "./Agent";
-import Tenant from "./Tenant";
 
 export default class TransactionRecord extends BaseModel {
   @column({ isPrimary: true })
