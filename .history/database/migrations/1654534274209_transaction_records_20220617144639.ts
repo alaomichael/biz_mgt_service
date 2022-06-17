@@ -18,8 +18,6 @@ export default class extends BaseSchema {
           .notNullable()
           .defaultTo("pending")
           .index();
- table.float('long').unsigned().nullable()
-      table.float('lat').unsigned().nullable()
 
 
       /**

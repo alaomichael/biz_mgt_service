@@ -14,7 +14,6 @@ export default class TransactionRecord extends BaseModel {
 
   @column()
   public serviceName: string;
-  
   @column()
   public sender: string;
 
